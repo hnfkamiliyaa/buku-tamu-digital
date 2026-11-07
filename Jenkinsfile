@@ -14,7 +14,7 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        credentialsId: "${3d9b959e-493d-496a-88fa-fa2330746951}",
+                        credentialsId: '3d9b959e-493d-496a-88fa-fa2330746951',
                         url: 'https://github.com/hnfkamiliyaa/buku-tamu-digital.git'
                     ]]
                 )
