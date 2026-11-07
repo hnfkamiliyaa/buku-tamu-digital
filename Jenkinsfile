@@ -44,11 +44,14 @@ pipeline {
 
         // Stage 4: Automated Deployment Menggunakan Docker Compose
         stage('Automated Deployment') {
-            steps {
-                // Menjalankan ulang Docker Compose untuk memperbarui layanan
-                sh 'docker compose down && docker compose up -d --build'
+    steps {
+        // Ubah docker compose down menjadi docker-compose down (jika ada)
+        sh 'docker-compose down'
+        
+        // Ubah docker compose up -d menjadi docker-compose up -d
+        sh 'docker-compose up -d'
+                }
             }
-        }
 
         // Stage 5: Health Check Memanggil Endpoint /health
         stage('Health Check') {
