@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         // Sesuaikan ID kredensial dengan yang Anda buat di Jenkins (Langkah 3)
-        GIT_CREDENTIALS_ID = 'github-pat-credentials' 
+        GIT_CREDENTIALS_ID = '3d9b959e-493d-496a-88fa-fa2330746951' 
         IMAGE_NAME = 'buku-tamu-backend'
     }
 
@@ -14,8 +14,8 @@ pipeline {
                 checkout scmGit(
                     branches: [[name: '*/main']],
                     userRemoteConfigs: [[
-                        credentialsId: "${env.GIT_CREDENTIALS_ID}",
-                        url: 'https://github.com/USERNAME/buku-tamu-digital-kampus.git'
+                        credentialsId: "${3d9b959e-493d-496a-88fa-fa2330746951}",
+                        url: 'https://github.com/hnfkamiliyaa/buku-tamu-digital.git'
                     ]]
                 )
             }
