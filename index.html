@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Tamu Digital Kampus</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #004085; }
+        .stats-container { display: flex; gap: 15px; margin-bottom: 20px; }
+        .stat-card { flex: 1; background: #e2e8f0; padding: 15px; border-radius: 6px; text-align: center; }
+        .stat-card h3 { margin: 0 0 5px; font-size: 14px; color: #4a5568; }
+        .stat-card p { margin: 0; font-size: 20px; font-weight: bold; color: #2d3748; }
+        form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        input, textarea { padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 14px; }
+        button { padding: 10px; background: #3182ce; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #2b6cb0; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+        th { background: #edf2f7; }
+        .delete-btn { background: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .delete-btn:hover { background: #c53030; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Buku Tamu Digital Kampus</h1>
+        
+        <!-- 3 Kartu Statistik -->
+        <div class="stats-container">
+            <div class="stat-card">
+                <h3>Total Kunjungan</h3>
+                <p id="total-visits">0</p>
+            </div>
+            <div class="stat-card">
+                <h3>Hari Ini</h3>
+                <p>Aktif</p>
+            </div>
+            <div class="stat-card">
+                <h3>Status Sistem</h3>
+                <p style="color: green;">Online</p>
+            </div>
+        </div>
+
+        <!-- Form Input Tamu -->
+        <form id="guest-form">
+            <input type="text" id="name" placeholder="Nama Lengkap" required>
+            <textarea id="message" rows="3" placeholder="Pesan / Keperluan Kunjungan" required></textarea>
+            <button type="submit">Kirim Pesan</button>
+        </form>
+
+        <!-- Tabel Riwayat Kunjungan -->
+        <h2>Riwayat Kunjungan</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Pesan</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="messages-table-body">
+                <!-- Data masuk lewat JS -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchMessages() {
+            try {
+                const response = await fetch('/api/messages');
+                const messages = await response.json();
+                
+                document.getElementById('total-visits').innerText = messages.length;
+                
+                const tbody = document.getElementById('messages-table-body');
+                tbody.innerHTML = '';
+                
+                messages.forEach((item, index) => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${escapeHtml(item.name)}</td>
+                        <td>${escapeHtml(item.message)}</td>
+                        <td><button class="delete-btn" onclick="deleteMessage(${index})">Hapus</button></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Gagal memuat pesan:', error);
+            }
+        }
+
+        document.getElementById('guest-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const message = document.getElementById('message').value;
+
+            try {
+                const response = await fetch('/api/messages', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, message })
+                });
+
+                if (response.ok) {
+                    document.getElementById('guest-form').reset();
+                    fetchMessages();
+                } else {
+                    alert('Gagal mengirim pesan.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        async function deleteMessage(index) {
+            if (!confirm('Yakin ingin menghapus pesan ini?')) return;
+            try {
+                const response = await fetch(`/api/messages?index=${index}`, {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    fetchMessages();
+                } else {
+                    alert('Gagal menghapus pesan.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // Muat data saat halaman dibuka
+        fetchMessages();
+    </script>
+</body>
+</html>
